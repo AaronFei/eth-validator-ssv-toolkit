@@ -1,0 +1,23 @@
+{
+  "name": "ssv-web-splitter",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Local, client-side SSV keyshare splitter. Keystore + private key never leave the browser tab. Serve on 127.0.0.1 only.",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "start": "vite build && vite preview"
+  },
+  "dependencies": {
+    "@noble/ciphers": "^2.2.0",
+    "@ssv-labs/ssv-sdk": "0.1.0"
+  },
+  "devDependencies": {
+    "crypto-browserify": "^3.12.1",
+    "unenv": "2.0.0-rc.24",
+    "vite": "^7.0.3",
+    "vite-plugin-node-polyfills": "^0.23.0"
+  }
+}

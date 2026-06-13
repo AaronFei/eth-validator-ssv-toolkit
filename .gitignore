@@ -1,0 +1,14 @@
+# deps & local build cruft
+node_modules/
+dist/
+.vite/
+.DS_Store
+
+# NEVER commit real validator key material
+keystores/
+shares/
+keystore-m_*.json
+keyshares*.json
+deposit_data*.json
+*.keystore
+# (test.keystore.json is the PUBLIC SSV test key — intentionally kept)

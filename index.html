@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SSV KeyShare Splitter</title>
+    <style>
+      :root { color-scheme: dark; }
+      * { box-sizing: border-box; }
+      body {
+        font-family: -apple-system, "PingFang TC", system-ui, sans-serif;
+        background: #0b1220; color: #e6edf6; margin: 0; padding: 24px;
+        max-width: 860px; margin-inline: auto; line-height: 1.5;
+      }
+      .hdr { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+      h1 { font-size: 20px; margin: 0 0 4px; }
+      h2 { font-size: 15px; margin: 24px 0 8px; color: #9fb4d0; text-transform: uppercase; letter-spacing: .04em; }
+      .banner { border-radius: 10px; padding: 14px 16px; margin: 12px 0 8px; font-size: 14px; }
+      .warn { background: #2a1a0a; border: 1px solid #7a4a12; }
+      .ok   { background: #0c2118; border: 1px solid #1f6b45; }
+      code { background: #11203a; padding: 1px 6px; border-radius: 5px; font-size: 13px; }
+      label { display: block; font-size: 13px; color: #aac0dc; margin: 10px 0 4px; }
+      input[type=text], textarea {
+        width: 100%; background: #0f1b30; border: 1px solid #243a5c; color: #e6edf6;
+        border-radius: 8px; padding: 9px 11px; font-size: 13px; font-family: ui-monospace, monospace;
+      }
+      textarea { min-height: 70px; resize: vertical; }
+      button {
+        background: #2563eb; color: #fff; border: 0; border-radius: 8px;
+        padding: 9px 16px; font-size: 14px; cursor: pointer; margin-top: 8px;
+      }
+      button.secondary { background: #1f344f; }
+      button:disabled { opacity: .5; cursor: not-allowed; }
+      button#gen { background: #16a34a; font-weight: 600; padding: 12px 20px; font-size: 15px; }
+      .langbtn { margin-top: 0; background: #1f344f; padding: 6px 12px; font-size: 13px; flex: 0 0 auto; }
+      .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: end; }
+      .row > div { flex: 1; min-width: 180px; }
+      #log {
+        background: #08101f; border: 1px solid #1c2c47; border-radius: 8px; padding: 12px;
+        font-family: ui-monospace, monospace; font-size: 12.5px; white-space: pre-wrap;
+        min-height: 60px; margin-top: 10px;
+      }
+      .hint { font-size: 12px; color: #7e93b0; margin-top: 4px; }
+      hr { border: 0; border-top: 1px solid #1c2c47; margin: 20px 0; }
+      a { color: #5aa0ff; }
+      #dl { margin-top: 6px; }
+      a.dlbtn { display: inline-block; margin-top: 10px; background: #16a34a;
+        color: #fff !important; padding: 12px 22px; border-radius: 8px;
+        text-decoration: none; font-weight: 600; font-size: 15px; }
+    </style>
+  </head>
+  <body>
+    <div class="hdr">
+      <h1 data-i18n="title">🔐 SSV KeyShare 切割器 — 本機 / 離線</h1>
+      <button id="langBtn" class="langbtn" type="button">EN</button>
+    </div>
+
+    <div class="banner warn" data-i18n-html="bannerWarn"></div>
+
+    <h2 data-i18n="secCmd"></h2>
+    <label data-i18n-html="cmdLabel"></label>
+    <textarea id="cmd" placeholder="./ssv-keys-mac --operator-keys=... --operator-ids=8,18,22,29 --owner-address=0x... --owner-nonce=0"></textarea>
+    <button class="secondary" id="parseCmd" type="button" data-i18n="parseCmdBtn"></button>
+    <div class="hint" data-i18n="cmdHint"></div>
+
+    <h2 data-i18n="secOps"></h2>
+    <label data-i18n="opIdsLabel"></label>
+    <input id="opIds" type="text" value="8,18,22,29" />
+    <div class="row">
+      <button class="secondary" id="fetchKeys" type="button" data-i18n="fetchKeysBtn"></button>
+    </div>
+    <label data-i18n="opKeysLabel"></label>
+    <textarea id="opKeys" placeholder="…"></textarea>
+    <div class="hint" data-i18n="opKeysHint"></div>
+
+    <h2 data-i18n="secOwner"></h2>
+    <div class="row">
+      <div>
+        <label data-i18n="ownerLabel"></label>
+        <input id="owner" type="text" placeholder="0x..." />
+      </div>
+      <div style="flex:0 0 auto;">
+        <button class="secondary" id="connect" type="button" data-i18n="connectBtn"></button>
+      </div>
+      <div style="flex:0 0 140px;">
+        <label data-i18n="nonceLabel"></label>
+        <input id="nonce" type="text" value="0" />
+      </div>
+    </div>
+    <div class="hint" data-i18n-html="ownerHint"></div>
+
+    <h2 data-i18n="secKeystore"></h2>
+    <label data-i18n="filesLabel"></label>
+    <input id="files" type="file" accept=".json,application/json" multiple />
+    <label data-i18n="pwLabel"></label>
+    <input id="pw" type="text" autocomplete="off" autocapitalize="off"
+      autocorrect="off" spellcheck="false" data-1p-ignore data-lpignore="true"
+      data-i18n-ph="pwPlaceholder" placeholder="" />
+
+    <hr />
+    <button id="gen" type="button" data-i18n="genBtn"></button>
+    <div id="log"></div>
+    <div id="dl"></div>
+
+    <div class="banner ok" data-i18n-html="okBanner" style="margin-top:18px;"></div>
+
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
