@@ -25,7 +25,7 @@ eyes, from different toolchains, is the trust model.
 | Date | Reviewer | Tool | Commit | Verdict |
 |---|---|---|---|---|
 | 2026-06-13 | Claude (Anthropic) | Claude Code — 48-agent adversarial workflow | `9e2433d` | [safe-with-caveats](2026-06-13-claude-adversarial.md) |
-| _pending_ | Grok (xAI) | grok build | — | _run `grok build` and add per TEMPLATE_ |
+| 2026-06-13 | Grok (xAI) | grok build (static analysis + test execution + dep audit + full source review) | `f1351ba` | [safe-with-caveats](2026-06-13-grok-review.md) |
 
 > Reviews are **point-in-time**. The cryptographic core (`src/generate.ts`,
 > `src/keystore.ts`, the SSV split path) is what matters most; commits after a

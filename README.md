@@ -113,10 +113,10 @@ Trust shouldn't rest on a single reviewer — including the author. Security rev
 [audits/README.md](audits/README.md) for how to add one.
 
 - **Claude (Anthropic)** — adversarial multi-agent security review + implementation → [review](audits/2026-06-13-claude-adversarial.md)
-- **Grok (xAI)** — review via `grok build` *(pending — add per [TEMPLATE](audits/TEMPLATE.md))*
+- **Grok (xAI)** — security review via `grok build` (core crypto, SSV split, shims, CSP, build reproducibility, dependency audit, offline guarantees) → [review](audits/2026-06-13-grok-review.md)
 
 信任不應依賴單一審查者(包括作者本人)。不同廠商的 AI 與人類所做的安全審查都記錄在
-[`audits/`](audits/),每份皆**釘選到特定 commit**且可獨立重現。貢獻者:**Claude(Anthropic)**、**Grok(xAI)**。
+[`audits/`](audits/),每份皆**釘選到特定 commit**且可獨立重現。貢獻者:**Claude(Anthropic)**、**Grok(xAI)**（已完成獨立安全審查並新增至 audits/）。
 
 ## License / 授權
 
