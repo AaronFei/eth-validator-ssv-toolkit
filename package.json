@@ -2,6 +2,7 @@
   "name": "eth-validator-ssv-toolkit",
   "private": true,
   "version": "0.1.0",
+  "license": "MIT",
   "type": "module",
   "description": "Client-side ETH validator toolkit: generate validator keys (keystores + deposit_data) and split into SSV keyshares — all in-browser, keys never leave the tab.",
   "scripts": {

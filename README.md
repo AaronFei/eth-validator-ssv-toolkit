@@ -103,3 +103,11 @@ The generated `deposit_data` was confirmed **byte-identical** to ethstaker-depos
 3. **Offline self-test:** `pnpm test` asserts the crypto against fixed vectors with no network. **Diff vs deposit-cli:** `pnpm verify:cli`. 自帶離線自我測試與官方 CLI 比對。
 4. **Watch DevTools → Network:** Generate/Top-up/Split issue **no** requests; the only requests ever come from the three 🌐 buttons. 在 DevTools 確認核心操作零請求。
 5. **Deposit via the official launchpad**, which re-validates `deposit_data` (fork/network/signature) before any ETH moves. 透過官方 launchpad 入金,它會再次驗證。
+
+## License / 授權
+
+Released under the **[MIT License](LICENSE)** — free to use, fork, modify, and self-host; keep the copyright notice. Provided **"AS IS", without warranty of any kind**: this tool handles real private keys and funds — verify everything yourself and use at your own risk. Nothing here is financial advice.
+
+本專案以 **MIT 授權**釋出:可自由使用、fork、修改、自架,保留著作權聲明即可。軟體**「按現狀」提供、不負任何擔保**——本工具會處理真實私鑰與資金,請自行驗證、自負風險;內容不構成投資建議。
+
+Bundled dependencies are all permissive (`@noble`/`@scure` MIT, `@chainsafe/*` Apache-2.0/ISC, herumi `bls-eth-wasm` BSD-3-Clause, `@ssv-labs/ssv-sdk` MIT, Vite MIT) and compatible with MIT redistribution.
