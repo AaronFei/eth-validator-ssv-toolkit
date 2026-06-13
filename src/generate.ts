@@ -55,6 +55,7 @@ export interface GenInput {
   count: number;
   compounding?: boolean;
   amountGwei?: number; // default 32 ETH
+  depositOnly?: boolean; // top-up: produce deposit_data only, no keystore/password
 }
 
 export interface GenResult {
@@ -102,16 +103,18 @@ export async function generateValidators(input: GenInput): Promise<GenResult> {
       deposit_cli_version: 'eth-validator-ssv-toolkit',
     });
 
-    // EIP-2335 keystore + round-trip self-verify (decrypt must return the key)
-    const path = `m/12381/3600/${index}/0/0`;
-    const ks = createKeystore(input.password, signing, pubkey, path);
-    if (bytesToHex(decryptKeystore(ks, input.password)) !== bytesToHex(signing)) {
-      throw new Error(`keystore round-trip failed @ index ${index}`);
+    // EIP-2335 keystore + round-trip self-verify (skipped for top-up/depositOnly)
+    if (!input.depositOnly) {
+      const path = `m/12381/3600/${index}/0/0`;
+      const ks = createKeystore(input.password, signing, pubkey, path);
+      if (bytesToHex(decryptKeystore(ks, input.password)) !== bytesToHex(signing)) {
+        throw new Error(`keystore round-trip failed @ index ${index}`);
+      }
+      keystores.push({
+        filename: `keystore-m_12381_3600_${index}_0_0-${Date.now()}.json`,
+        json: JSON.stringify(ks),
+      });
     }
-    keystores.push({
-      filename: `keystore-m_12381_3600_${index}_0_0-${Date.now()}.json`,
-      json: JSON.stringify(ks),
-    });
   }
 
   return { keystores, depositData };

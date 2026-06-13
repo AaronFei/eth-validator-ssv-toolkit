@@ -72,6 +72,7 @@
 
     <div class="tabs">
       <button class="tab active" id="tabGenerate" type="button" data-i18n="tabGenerate"></button>
+      <button class="tab" id="tabTopup" type="button" data-i18n="tabTopup"></button>
       <button class="tab" id="tabSplit" type="button" data-i18n="tabSplit"></button>
     </div>
 
@@ -180,6 +181,39 @@
       <div id="log"></div>
       <div id="dl"></div>
       <div class="banner ok" data-i18n-html="okBanner" style="margin-top:18px;"></div>
+    </div>
+
+    <!-- ============ TOP-UP PANEL ============ -->
+    <div id="panel-topup" class="hidden">
+      <div class="banner warn" data-i18n-html="topWarn"></div>
+
+      <h2 data-i18n="genSecNetwork"></h2>
+      <select id="tNetwork">
+        <option value="mainnet">Mainnet</option>
+        <option value="hoodi">Hoodi (testnet)</option>
+        <option value="holesky">Holesky (testnet)</option>
+      </select>
+
+      <h2 data-i18n="topSecMnemonic"></h2>
+      <label data-i18n="topMnemonicLabel"></label>
+      <div id="gTopupGrid" class="wordgrid"></div>
+      <div class="hint" data-i18n="gridHint"></div>
+
+      <h2 data-i18n="topSecValidator"></h2>
+      <div class="row">
+        <div><label data-i18n="topIndexLabel"></label><input id="tIndex" type="text" value="0" /></div>
+        <div><label data-i18n="genCountLabel"></label><input id="tCount" type="text" value="1" /></div>
+        <div><label data-i18n="topAmountLabel"></label><input id="tAmount" type="text" value="32" /></div>
+      </div>
+      <label data-i18n="topWithdrawLabel"></label>
+      <input id="tWithdraw" type="text" placeholder="0x..." autocomplete="off" data-1p-ignore data-lpignore="true" />
+      <div class="hint" data-i18n="topWithdrawHint"></div>
+
+      <hr />
+      <button id="tGen" class="primary" type="button" data-i18n="topGenBtn"></button>
+      <div id="tLog"></div>
+      <div id="tDl"></div>
+      <div class="banner ok hidden" id="tNext" data-i18n-html="topNext"></div>
     </div>
 
     <script type="module" src="/src/main.ts"></script>

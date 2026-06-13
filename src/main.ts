@@ -15,6 +15,7 @@ const mkLog = (id: string) => (msg: string, replace = false) => {
 };
 const log = mkLog('log');     // split panel
 const glog = mkLog('gLog');   // generate panel
+const tLog = mkLog('tLog');   // top-up panel
 
 // ---------------- i18n ----------------
 type Lang = 'zh' | 'en';
@@ -82,6 +83,19 @@ const I18N: Record<Lang, Record<string, string>> = {
     okBanner:
       '<b>切完接下來:</b> 把 <code>keyshares.json</code> 上傳到 app.ssv.network 註冊。' +
       '⚠️ 同一個 validator 仍在別處運作時請勿註冊 —— 先停掉、等連續 2 次漏勤,確認後再註冊,以免雙簽被罰。',
+    tabTopup: '③ 加碼 Top-up',
+    topWarn:
+      '<b>幫既有 0x02 validator 加碼。</b>本頁只產生 top-up 的 <code>deposit_data.json</code>(不需密碼、不出 keystore)。' +
+      '鏈上 top-up 只認 pubkey,簽名與提款憑證不會被重新檢查;<b>產生前建議斷網</b>。送出用 ethdo / launchpad / 直接對存款合約。',
+    topSecMnemonic: '① 助記詞(該 validator 的)',
+    topMnemonicLabel: '匯入助記詞(用來推出正確 pubkey 並簽名)',
+    topSecValidator: '② 既有 validator + 加碼金額',
+    topIndexLabel: '既有 validator 的 index',
+    topAmountLabel: '每個加碼 ETH(1–2048,可小數)',
+    topWithdrawLabel: '提款地址(該 0x02 validator 的)',
+    topWithdrawHint: 'index 要填「既有」那個(不是 detect 的下一個);可從 keystore 檔名 m_12381_3600_X 或 beaconcha 對照。提款地址在 top-up 鏈上會忽略,但建議填正確。',
+    topGenBtn: '產生 top-up deposit_data',
+    topNext: '',
   },
   en: {
     title: '🔐 ETH Validator + SSV Toolkit (local)',
@@ -141,6 +155,19 @@ const I18N: Record<Lang, Record<string, string>> = {
     okBanner:
       "<b>Next:</b> upload <code>keyshares.json</code> to app.ssv.network to register. " +
       "⚠️ Don't register while the same validator runs elsewhere — stop it, wait for 2 consecutive missed attestations, then register, to avoid double-signing.",
+    tabTopup: '③ Top-up',
+    topWarn:
+      '<b>Add ETH to an existing 0x02 validator.</b> This page only produces a top-up <code>deposit_data.json</code> (no password, no keystore). ' +
+      'On-chain a top-up only matches by pubkey; its signature & withdrawal credentials are not re-checked. <b>Disconnect before generating.</b> Submit via ethdo / launchpad / the deposit contract.',
+    topSecMnemonic: '① Mnemonic (of that validator)',
+    topMnemonicLabel: 'Import the mnemonic (to derive the correct pubkey and sign)',
+    topSecValidator: '② Existing validator + top-up amount',
+    topIndexLabel: "Existing validator's index",
+    topAmountLabel: 'Top-up ETH each (1–2048, decimals OK)',
+    topWithdrawLabel: 'Withdrawal address (of that 0x02 validator)',
+    topWithdrawHint: "Use the EXISTING validator's index (not the next-free one); find it from the keystore filename m_12381_3600_X or beaconcha. The address is ignored on top-up but better correct.",
+    topGenBtn: 'Generate top-up deposit_data',
+    topNext: '',
   },
 };
 const t = (k: string) => I18N[lang][k] ?? I18N.zh[k] ?? k;
@@ -157,13 +184,14 @@ function applyLang(l: Lang) {
 $('langBtn').addEventListener('click', () => applyLang(lang === 'zh' ? 'en' : 'zh'));
 
 // ---------------- tabs ----------------
-function showTab(which: 'generate' | 'split') {
-  $('panel-generate').classList.toggle('hidden', which !== 'generate');
-  $('panel-split').classList.toggle('hidden', which !== 'split');
+function showTab(which: 'generate' | 'topup' | 'split') {
+  (['generate', 'topup', 'split'] as const).forEach((tb) => $('panel-' + tb).classList.toggle('hidden', which !== tb));
   $('tabGenerate').classList.toggle('active', which === 'generate');
+  $('tabTopup').classList.toggle('active', which === 'topup');
   $('tabSplit').classList.toggle('active', which === 'split');
 }
 $('tabGenerate').addEventListener('click', () => showTab('generate'));
+$('tabTopup').addEventListener('click', () => showTab('topup'));
 $('tabSplit').addEventListener('click', () => showTab('split'));
 
 // ---------------- masked password (plain text field, no save-password prompt) ----------------
@@ -253,6 +281,7 @@ function buildMnemonicGrid(container: HTMLElement) {
 }
 const confirmGrid = buildMnemonicGrid($('gConfirmGrid'));
 const importGrid = buildMnemonicGrid($('gImportGrid'));
+const topupGrid = buildMnemonicGrid($('gTopupGrid'));
 
 // ================= GENERATE =================
 let genMode: 'new' | 'import' = 'new';
@@ -361,6 +390,44 @@ $('gGen').addEventListener('click', async () => {
     glog('❌ ' + (e?.message ?? e));
   } finally {
     $('gGen').disabled = false;
+  }
+});
+
+// ================= TOP-UP =================
+$('tGen').addEventListener('click', async () => {
+  try {
+    const network = $('tNetwork').value;
+    const mnemonic = topupGrid.getMnemonic();
+    if (!validateMnemonic(mnemonic, wordlist)) return tLog(tx('❌ 助記詞無效(檢查字數/拼字)。', '❌ Invalid mnemonic (check word count/spelling).'), true);
+    const withdraw = ($('tWithdraw').value || '').trim();
+    if (!/^0x[0-9a-fA-F]{40}$/.test(withdraw)) return tLog(tx('❌ 提款地址格式不正確。', '❌ Withdrawal address format is invalid.'), true);
+    const startIndex = parseInt(($('tIndex').value || '').trim(), 10);
+    const count = parseInt(($('tCount').value || '').trim(), 10);
+    const amountEth = parseFloat(($('tAmount').value || '').trim());
+    if (Number.isNaN(startIndex) || startIndex < 0) return tLog(tx('❌ index 不正確。', '❌ Index is invalid.'), true);
+    if (Number.isNaN(count) || count < 1) return tLog(tx('❌ 數量不正確。', '❌ Count is invalid.'), true);
+    if (Number.isNaN(amountEth) || amountEth < 1 || amountEth > 2048) return tLog(tx('❌ 加碼金額需 1–2048 ETH。', '❌ Top-up amount must be 1–2048 ETH.'), true);
+
+    $('tGen').disabled = true;
+    clearDownloads($('tDl'));
+    $('tNext').classList.add('hidden');
+    tLog(tx(`產生 ${count} 筆 top-up deposit_data(本機)...`, `Generating ${count} top-up deposit_data (local)...`), true);
+    const res = await generateValidators({
+      mnemonic, password: '', withdrawalAddress: withdraw, network,
+      startIndex, count, compounding: true, amountGwei: Math.round(amountEth * 1e9), depositOnly: true,
+    });
+    res.depositData.forEach((d: any, i: number) => tLog(`  • index ${startIndex + i}: 0x${d.pubkey.slice(0, 14)}…  +${amountEth} ETH`));
+    addDownload($('tDl'), `topup_deposit_data-${Date.now()}.json`, JSON.stringify(res.depositData));
+    tLog(tx('✅ 完成。請先核對上面 pubkey 是你要加碼的 validator,再送出。', '✅ Done. Verify the pubkey(s) above match the validator(s) you want to top up before submitting.'));
+    $('tNext').classList.remove('hidden');
+    $('tNext').innerHTML = tx(
+      '<b>送出方式(這是 top-up):</b> ethdo(<code>ethdo validator deposit</code>)、官方 launchpad 的 top-up,或直接對存款合約送這個 deposit_data。鏈上只認 pubkey,會把 ETH 加到既有 validator。',
+      '<b>How to submit (this is a top-up):</b> ethdo (<code>ethdo validator deposit</code>), the official launchpad top-up, or send this deposit_data to the deposit contract directly. On-chain it matches by pubkey and adds the ETH to the existing validator.');
+  } catch (e: any) {
+    console.error('topup failed:', e?.stack || e);
+    tLog('❌ ' + (e?.message ?? e));
+  } finally {
+    $('tGen').disabled = false;
   }
 });
 
