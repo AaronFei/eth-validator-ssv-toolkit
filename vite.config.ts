@@ -3,6 +3,7 @@ import { nodePolyfills } from 'vite-plugin-node-polyfills';
 import { fileURLToPath } from 'node:url';
 
 const CRYPTO_SHIM = fileURLToPath(new URL('./src/crypto-shim.ts', import.meta.url));
+const KS_ENV_SHIM = fileURLToPath(new URL('./src/ks-env-shim.ts', import.meta.url));
 
 // Redirect ONLY the SSV SDK's `crypto` import to our shim (= unenv crypto with
 // working AES ciphers from @noble/ciphers). vite-plugin-node-polyfills has
@@ -21,6 +22,15 @@ function sdkCryptoShim() {
         source === 'node:crypto' ||
         norm.endsWith('/unenv/dist/runtime/node/crypto.mjs');
       if (isCrypto && imp.includes('@ssv-labs')) return CRYPTO_SHIM;
+      // @chainsafe/bls-keystore's CJS env.js escapes the commonjs transform
+      // ("exports is not defined"). Its sub-modules import it as "../env";
+      // redirect to an ESM shim (also forces hasWebCrypto=true → browser path).
+      if (
+        imp.includes('bls-keystore') &&
+        (/(^|\/)\.\.?\/env(\.js)?$/.test(source) || norm.endsWith('/@chainsafe/bls-keystore/lib/env.js'))
+      ) {
+        return KS_ENV_SHIM;
+      }
       return null;
     },
   };
@@ -35,7 +45,15 @@ export default defineConfig({
   base: './',
   // Build into docs/ so GitHub Pages can serve from `main` branch /docs (no CI,
   // so the deployed code is exactly this locally-built, reviewable bundle).
-  build: { outDir: 'docs', emptyOutDir: true },
+  // transformMixedEsModules: some generate deps are CommonJS (use exports/require);
+  // convert them so they don't blow up with "exports is not defined" in the browser.
+  build: {
+    outDir: 'docs',
+    emptyOutDir: true,
+    // strictRequires forces every CJS module to be wrapped (fixes
+    // "exports is not defined" from e.g. @chainsafe/bls-keystore/lib/env.js).
+    commonjsOptions: { transformMixedEsModules: true, strictRequires: true },
+  },
   plugins: [
     sdkCryptoShim(),
     nodePolyfills({

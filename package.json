@@ -16,6 +16,7 @@
     "@chainsafe/bls-keystore": "^3.1.0",
     "@lodestar/types": "^1.43.0",
     "@noble/ciphers": "^2.2.0",
+    "@noble/hashes": "^2.2.0",
     "@scure/bip39": "^2.2.0",
     "@ssv-labs/ssv-sdk": "0.1.0"
   },

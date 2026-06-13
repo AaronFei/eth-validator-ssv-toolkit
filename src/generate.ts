@@ -3,7 +3,7 @@
 // (same pubkey / withdrawal_credentials / signature / deposit_data_root).
 // Uses audited libs only; herumi BLS backend (bls-eth-wasm) for the browser.
 import { deriveKeyFromMnemonic, deriveEth2ValidatorKeys } from '@chainsafe/bls-keygen';
-import { create as createKeystore } from '@chainsafe/bls-keystore';
+import { createKeystore, decryptKeystore } from './keystore';
 import { ssz } from '@lodestar/types';
 import blsHerumi from '@chainsafe/bls/herumi';
 
@@ -102,9 +102,12 @@ export async function generateValidators(input: GenInput): Promise<GenResult> {
       deposit_cli_version: 'eth-validator-ssv-toolkit',
     });
 
-    // EIP-2335 keystore (re-decrypt verified after)
+    // EIP-2335 keystore + round-trip self-verify (decrypt must return the key)
     const path = `m/12381/3600/${index}/0/0`;
-    const ks = await createKeystore(input.password, signing, pubkey, path);
+    const ks = createKeystore(input.password, signing, pubkey, path);
+    if (bytesToHex(decryptKeystore(ks, input.password)) !== bytesToHex(signing)) {
+      throw new Error(`keystore round-trip failed @ index ${index}`);
+    }
     keystores.push({
       filename: `keystore-m_12381_3600_${index}_0_0-${Date.now()}.json`,
       json: JSON.stringify(ks),

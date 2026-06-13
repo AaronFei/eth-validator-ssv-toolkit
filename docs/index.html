@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>SSV KeyShare Splitter</title>
+    <title>ETH Validator + SSV Toolkit</title>
     <style>
       :root { color-scheme: dark; }
       * { box-sizing: border-box; }
@@ -13,14 +13,14 @@
         max-width: 860px; margin-inline: auto; line-height: 1.5;
       }
       .hdr { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
-      h1 { font-size: 20px; margin: 0 0 4px; }
-      h2 { font-size: 15px; margin: 24px 0 8px; color: #9fb4d0; text-transform: uppercase; letter-spacing: .04em; }
+      h1 { font-size: 19px; margin: 0 0 4px; }
+      h2 { font-size: 15px; margin: 22px 0 8px; color: #9fb4d0; text-transform: uppercase; letter-spacing: .04em; }
       .banner { border-radius: 10px; padding: 14px 16px; margin: 12px 0 8px; font-size: 14px; }
       .warn { background: #2a1a0a; border: 1px solid #7a4a12; }
       .ok   { background: #0c2118; border: 1px solid #1f6b45; }
       code { background: #11203a; padding: 1px 6px; border-radius: 5px; font-size: 13px; }
       label { display: block; font-size: 13px; color: #aac0dc; margin: 10px 0 4px; }
-      input[type=text], textarea {
+      input[type=text], textarea, select {
         width: 100%; background: #0f1b30; border: 1px solid #243a5c; color: #e6edf6;
         border-radius: 8px; padding: 9px 11px; font-size: 13px; font-family: ui-monospace, monospace;
       }
@@ -31,79 +31,150 @@
       }
       button.secondary { background: #1f344f; }
       button:disabled { opacity: .5; cursor: not-allowed; }
-      button#gen { background: #16a34a; font-weight: 600; padding: 12px 20px; font-size: 15px; }
+      button.primary { background: #16a34a; font-weight: 600; padding: 12px 20px; font-size: 15px; }
       .langbtn { margin-top: 0; background: #1f344f; padding: 6px 12px; font-size: 13px; flex: 0 0 auto; }
+      .tabs { display: flex; gap: 8px; margin: 14px 0 4px; border-bottom: 1px solid #1c2c47; }
+      .tab { background: transparent; color: #9fb4d0; border: 0; border-bottom: 2px solid transparent;
+        border-radius: 0; padding: 8px 14px; margin: 0; font-size: 14px; }
+      .tab.active { color: #e6edf6; border-bottom-color: #2563eb; font-weight: 600; }
       .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: end; }
-      .row > div { flex: 1; min-width: 180px; }
-      #log {
+      .row > div { flex: 1; min-width: 160px; }
+      .mono-box { background: #08101f; border: 1px solid #1c2c47; border-radius: 8px; padding: 12px;
+        font-family: ui-monospace, monospace; font-size: 13px; white-space: pre-wrap; word-break: break-word; }
+      #log, #gLog {
         background: #08101f; border: 1px solid #1c2c47; border-radius: 8px; padding: 12px;
         font-family: ui-monospace, monospace; font-size: 12.5px; white-space: pre-wrap;
-        min-height: 60px; margin-top: 10px;
+        min-height: 50px; margin-top: 10px;
       }
       .hint { font-size: 12px; color: #7e93b0; margin-top: 4px; }
-      hr { border: 0; border-top: 1px solid #1c2c47; margin: 20px 0; }
+      .net { font-size: 12px; color: #f0b34a; }
+      hr { border: 0; border-top: 1px solid #1c2c47; margin: 18px 0; }
       a { color: #5aa0ff; }
-      #dl { margin-top: 6px; }
-      a.dlbtn { display: inline-block; margin-top: 10px; background: #16a34a;
-        color: #fff !important; padding: 12px 22px; border-radius: 8px;
-        text-decoration: none; font-weight: 600; font-size: 15px; }
+      #dl, #gDl { margin-top: 6px; }
+      a.dlbtn { display: inline-block; margin: 6px 6px 0 0; background: #16a34a;
+        color: #fff !important; padding: 10px 16px; border-radius: 8px;
+        text-decoration: none; font-weight: 600; font-size: 14px; }
+      .hidden { display: none; }
+      .chk { display: flex; align-items: flex-start; gap: 8px; margin-top: 10px; font-size: 13px; color: #cdddf0; }
+      .chk input { width: auto; margin-top: 3px; }
     </style>
-    <script type="module" crossorigin src="./assets/index-DchMBeHo.js"></script>
+    <script type="module" crossorigin src="./assets/index-DBiZKv3C.js"></script>
   </head>
   <body>
     <div class="hdr">
-      <h1 data-i18n="title">🔐 SSV KeyShare 切割器 — 本機 / 離線</h1>
-      <button id="langBtn" class="langbtn" type="button">EN</button>
+      <h1 data-i18n="title"></h1>
+      <button id="langBtn" class="langbtn" type="button"></button>
     </div>
 
-    <div class="banner warn" data-i18n-html="bannerWarn"></div>
-
-    <h2 data-i18n="secCmd"></h2>
-    <label data-i18n-html="cmdLabel"></label>
-    <textarea id="cmd" placeholder="./ssv-keys-mac --operator-keys=... --operator-ids=1,2,3,4 --owner-address=0x... --owner-nonce=0"></textarea>
-    <button class="secondary" id="parseCmd" type="button" data-i18n="parseCmdBtn"></button>
-    <div class="hint" data-i18n="cmdHint"></div>
-
-    <h2 data-i18n="secOps"></h2>
-    <label data-i18n="opIdsLabel"></label>
-    <input id="opIds" type="text" placeholder="1,2,3,4" />
-    <div class="row">
-      <button class="secondary" id="fetchKeys" type="button" data-i18n="fetchKeysBtn"></button>
+    <div class="tabs">
+      <button class="tab active" id="tabGenerate" type="button" data-i18n="tabGenerate"></button>
+      <button class="tab" id="tabSplit" type="button" data-i18n="tabSplit"></button>
     </div>
-    <label data-i18n="opKeysLabel"></label>
-    <textarea id="opKeys" placeholder="…"></textarea>
-    <div class="hint" data-i18n="opKeysHint"></div>
 
-    <h2 data-i18n="secOwner"></h2>
-    <div class="row">
-      <div>
-        <label data-i18n="ownerLabel"></label>
-        <input id="owner" type="text" placeholder="0x..." />
+    <!-- ============ GENERATE PANEL ============ -->
+    <div id="panel-generate">
+      <div class="banner warn" data-i18n-html="genWarn"></div>
+
+      <h2 data-i18n="genSecNetwork"></h2>
+      <select id="gNetwork">
+        <option value="mainnet">Mainnet</option>
+        <option value="hoodi">Hoodi (testnet)</option>
+        <option value="holesky">Holesky (testnet)</option>
+      </select>
+
+      <h2 data-i18n="genSecMnemonic"></h2>
+      <div class="row">
+        <button class="secondary" id="gModeNew" type="button" data-i18n="genModeNew"></button>
+        <button class="secondary" id="gModeImport" type="button" data-i18n="genModeImport"></button>
       </div>
-      <div style="flex:0 0 auto;">
-        <button class="secondary" id="connect" type="button" data-i18n="connectBtn"></button>
+
+      <div id="gNewBox" class="hidden">
+        <button class="secondary" id="gGenMnemonic" type="button" data-i18n="genNewBtn"></button>
+        <label data-i18n="genNewShow"></label>
+        <div id="gMnemonicShow" class="mono-box"></div>
+        <label data-i18n="genConfirmLabel"></label>
+        <textarea id="gMnemonicConfirm" autocomplete="off" spellcheck="false" data-i18n-ph="genConfirmPh"></textarea>
       </div>
-      <div style="flex:0 0 140px;">
-        <label data-i18n="nonceLabel"></label>
-        <input id="nonce" type="text" value="0" />
+
+      <div id="gImportBox" class="hidden">
+        <label data-i18n="genImportLabel"></label>
+        <textarea id="gImport" autocomplete="off" spellcheck="false" data-i18n-ph="genImportPh"></textarea>
       </div>
+
+      <h2 data-i18n="genSecWithdraw"></h2>
+      <label data-i18n="genWithdrawLabel"></label>
+      <input id="gWithdraw" type="text" placeholder="0x..." autocomplete="off" data-1p-ignore data-lpignore="true" />
+      <label data-i18n="genWithdraw2Label"></label>
+      <input id="gWithdraw2" type="text" placeholder="0x..." autocomplete="off" data-1p-ignore data-lpignore="true" />
+      <label class="chk"><input id="gCompounding" type="checkbox" /><span data-i18n="genCompounding"></span></label>
+
+      <h2 data-i18n="genSecValidators"></h2>
+      <div class="row">
+        <div><label data-i18n="genStartLabel"></label><input id="gStart" type="text" value="0" /></div>
+        <div><label data-i18n="genCountLabel"></label><input id="gCount" type="text" value="1" /></div>
+        <div><label data-i18n="genAmountLabel"></label><input id="gAmount" type="text" value="32" /></div>
+      </div>
+      <label data-i18n="genPwLabel"></label>
+      <input id="gPw" type="text" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false"
+        data-1p-ignore data-lpignore="true" data-i18n-ph="genPwPh" placeholder="" />
+
+      <hr />
+      <button id="gGen" class="primary" type="button" data-i18n="genGenBtn"></button>
+      <div id="gLog"></div>
+      <div id="gDl"></div>
+      <div class="banner ok hidden" id="gNext" data-i18n-html="genNext"></div>
     </div>
-    <div class="hint" data-i18n-html="ownerHint"></div>
 
-    <h2 data-i18n="secKeystore"></h2>
-    <label data-i18n="filesLabel"></label>
-    <input id="files" type="file" accept=".json,application/json" multiple />
-    <label data-i18n="pwLabel"></label>
-    <input id="pw" type="text" autocomplete="off" autocapitalize="off"
-      autocorrect="off" spellcheck="false" data-1p-ignore data-lpignore="true"
-      data-i18n-ph="pwPlaceholder" placeholder="" />
+    <!-- ============ SPLIT PANEL ============ -->
+    <div id="panel-split" class="hidden">
+      <div class="banner warn" data-i18n-html="bannerWarn"></div>
 
-    <hr />
-    <button id="gen" type="button" data-i18n="genBtn"></button>
-    <div id="log"></div>
-    <div id="dl"></div>
+      <h2 data-i18n="secCmd"></h2>
+      <label data-i18n-html="cmdLabel"></label>
+      <textarea id="cmd" placeholder="./ssv-keys-mac --operator-keys=... --operator-ids=1,2,3,4 --owner-address=0x... --owner-nonce=0"></textarea>
+      <button class="secondary" id="parseCmd" type="button" data-i18n="parseCmdBtn"></button>
+      <div class="hint" data-i18n="cmdHint"></div>
 
-    <div class="banner ok" data-i18n-html="okBanner" style="margin-top:18px;"></div>
+      <h2 data-i18n="secOps"></h2>
+      <label data-i18n="opIdsLabel"></label>
+      <input id="opIds" type="text" placeholder="1,2,3,4" />
+      <div class="row">
+        <button class="secondary" id="fetchKeys" type="button" data-i18n="fetchKeysBtn"></button>
+      </div>
+      <label data-i18n="opKeysLabel"></label>
+      <textarea id="opKeys" placeholder="…"></textarea>
+      <div class="hint" data-i18n="opKeysHint"></div>
+
+      <h2 data-i18n="secOwner"></h2>
+      <div class="row">
+        <div>
+          <label data-i18n="ownerLabel"></label>
+          <input id="owner" type="text" placeholder="0x..." />
+        </div>
+        <div style="flex:0 0 auto;">
+          <button class="secondary" id="connect" type="button" data-i18n="connectBtn"></button>
+        </div>
+        <div style="flex:0 0 140px;">
+          <label data-i18n="nonceLabel"></label>
+          <input id="nonce" type="text" value="0" />
+        </div>
+      </div>
+      <div class="hint" data-i18n-html="ownerHint"></div>
+
+      <h2 data-i18n="secKeystore"></h2>
+      <label data-i18n="filesLabel"></label>
+      <input id="files" type="file" accept=".json,application/json" multiple />
+      <label data-i18n="pwLabel"></label>
+      <input id="pw" type="text" autocomplete="off" autocapitalize="off"
+        autocorrect="off" spellcheck="false" data-1p-ignore data-lpignore="true"
+        data-i18n-ph="pwPlaceholder" placeholder="" />
+
+      <hr />
+      <button id="gen" class="primary" type="button" data-i18n="genBtn"></button>
+      <div id="log"></div>
+      <div id="dl"></div>
+      <div class="banner ok" data-i18n-html="okBanner" style="margin-top:18px;"></div>
+    </div>
 
   </body>
 </html>
