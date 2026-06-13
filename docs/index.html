@@ -38,7 +38,7 @@
       button.secondary { background: #1f344f; }
       button:disabled { opacity: .5; cursor: not-allowed; }
       button.primary { background: #16a34a; font-weight: 600; padding: 12px 20px; font-size: 15px; }
-      .langbtn { margin-top: 0; background: #1f344f; padding: 6px 12px; font-size: 13px; flex: 0 0 auto; }
+      .langsel { margin-top: 0; background: #1f344f; color: #e6edf3; border: 1px solid #30435c; border-radius: 6px; padding: 6px 10px; font-size: 13px; flex: 0 0 auto; cursor: pointer; }
       .tabs { display: flex; gap: 8px; margin: 14px 0 4px; border-bottom: 1px solid #1c2c47; }
       .tab { background: transparent; color: #9fb4d0; border: 0; border-bottom: 2px solid transparent;
         border-radius: 0; padding: 8px 14px; margin: 0; font-size: 14px; }
@@ -69,12 +69,12 @@
       .chk { display: flex; align-items: flex-start; gap: 8px; margin-top: 10px; font-size: 13px; color: #cdddf0; }
       .chk input { width: auto; margin-top: 3px; }
     </style>
-    <script type="module" crossorigin src="./assets/index-Dz3arvKb.js"></script>
+    <script type="module" crossorigin src="./assets/index-8kwLAzvl.js"></script>
   </head>
   <body>
     <div class="hdr">
       <h1 data-i18n="title"></h1>
-      <button id="langBtn" class="langbtn" type="button"></button>
+      <select id="langSel" class="langsel" aria-label="Language"></select>
     </div>
 
     <div class="links">

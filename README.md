@@ -1,6 +1,6 @@
 # ETH Validator + SSV Toolkit (client-side)
 
-**Live:** https://aaronfei.github.io/eth-validator-ssv-toolkit/ (中文 / English toggle, top-right)
+**Live:** https://aaronfei.github.io/eth-validator-ssv-toolkit/ (8 languages — English · 繁體中文 · 简体中文 · 日本語 · 한국어 · Русский · Deutsch · Español — selector top-right)
 
 A fully **client-side** toolkit for Ethereum validator keys, in three tabs:
 **① Generate** (BIP-39 mnemonic → EIP-2335 keystores + `deposit_data`),
