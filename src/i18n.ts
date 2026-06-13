@@ -42,6 +42,7 @@ type Dict = Record<string, string>;
 
 export const UI: Record<Lang, Dict> = {
   "en": {
+    "splitPrereq": "<b>Before you split:</b> first on <a href=\"https://app.ssv.network\" target=\"_blank\" rel=\"noreferrer\">app.ssv.network</a>, choose your validator and the operators (≥4) that will run it, and copy the command it generates. Then split your keystore here — paste that command into ⓪ below to auto-fill the operator IDs/keys, owner address and nonce.",
     "title": "🔐 ETH Validator + SSV Toolkit (local)",
     "tabGenerate": "Generate validator keys",
     "tabSplit": "Split SSV KeyShares",
@@ -102,6 +103,7 @@ export const UI: Record<Lang, Dict> = {
     "topGenBtn": "Generate top-up deposit_data"
   },
   "zh-Hant": {
+    "splitPrereq": "<b>切割前先做這步:</b> 先到 <a href=\"https://app.ssv.network\" target=\"_blank\" rel=\"noreferrer\">app.ssv.network</a> 選好你的 validator 與要服務它的 operators(至少 4 個),複製它產生的指令;再回到這裡切割 keystore——把該指令貼到下方 ⓪,就會自動帶入 operator IDs/公鑰、owner 地址與 nonce。",
     "title": "🔐 ETH Validator + SSV 工具箱(本機)",
     "tabGenerate": "產生 Validator 金鑰",
     "tabSplit": "切割 SSV KeyShares",
@@ -162,6 +164,7 @@ export const UI: Record<Lang, Dict> = {
     "topGenBtn": "產生 top-up deposit_data"
   },
   "zh-Hans": {
+    "splitPrereq": "<b>拆分前先做这步:</b> 先到 <a href=\"https://app.ssv.network\" target=\"_blank\" rel=\"noreferrer\">app.ssv.network</a> 选好你的验证者与要服务它的运营者(至少 4 个),复制它生成的命令;再回到这里拆分 keystore——把该命令粘贴到下方 ⓪,就会自动填入运营者 ID/公钥、所有者地址与 nonce。",
     "title": "🔐 ETH 验证者 + SSV 工具箱（本地）",
     "tabGenerate": "生成验证者密钥",
     "tabSplit": "拆分 SSV KeyShares",
@@ -222,6 +225,7 @@ export const UI: Record<Lang, Dict> = {
     "topGenBtn": "生成追加 deposit_data"
   },
   "ja": {
+    "splitPrereq": "<b>分割の前に:</b> まず <a href=\"https://app.ssv.network\" target=\"_blank\" rel=\"noreferrer\">app.ssv.network</a> でバリデータと、それを運用するオペレータ(4 つ以上)を選び、生成されるコマンドをコピーしてください。その後ここで keystore を分割します——そのコマンドを下の ⓪ に貼り付けると、オペレータ ID/公開鍵・owner アドレス・nonce が自動入力されます。",
     "title": "🔐 ETHバリデータ + SSV ツールキット（ローカル）",
     "tabGenerate": "バリデータ鍵を生成",
     "tabSplit": "SSV KeySharesを分割",
@@ -282,6 +286,7 @@ export const UI: Record<Lang, Dict> = {
     "topGenBtn": "追加入金用deposit_dataを生成"
   },
   "ko": {
+    "splitPrereq": "<b>분할하기 전에:</b> 먼저 <a href=\"https://app.ssv.network\" target=\"_blank\" rel=\"noreferrer\">app.ssv.network</a> 에서 검증자와 이를 운영할 오퍼레이터(4개 이상)를 선택하고 생성된 명령을 복사하세요. 그런 다음 여기에서 keystore를 분할합니다 — 그 명령을 아래 ⓪ 에 붙여넣으면 오퍼레이터 ID/공개키, owner 주소, nonce가 자동으로 입력됩니다.",
     "title": "🔐 ETH 검증자 + SSV 툴킷 (로컬)",
     "tabGenerate": "검증자 키 생성",
     "tabSplit": "SSV KeyShares 분할",
@@ -342,6 +347,7 @@ export const UI: Record<Lang, Dict> = {
     "topGenBtn": "추가 입금 deposit_data 생성"
   },
   "ru": {
+    "splitPrereq": "<b>Перед разделением:</b> сначала на <a href=\"https://app.ssv.network\" target=\"_blank\" rel=\"noreferrer\">app.ssv.network</a> выберите валидатор и операторов (не менее 4), которые будут его обслуживать, и скопируйте сгенерированную команду. Затем разделите keystore здесь — вставьте эту команду в ⓪ ниже, чтобы автоматически заполнить ID/ключи операторов, адрес owner и nonce.",
     "title": "🔐 ETH Validator + SSV Toolkit (локально)",
     "tabGenerate": "Создать ключи валидатора",
     "tabSplit": "Разделить SSV KeyShares",
@@ -402,6 +408,7 @@ export const UI: Record<Lang, Dict> = {
     "topGenBtn": "Создать deposit_data для пополнения"
   },
   "de": {
+    "splitPrereq": "<b>Vor dem Aufteilen:</b> Wähle zuerst auf <a href=\"https://app.ssv.network\" target=\"_blank\" rel=\"noreferrer\">app.ssv.network</a> deinen Validator und die Operatoren (mind. 4), die ihn betreiben, und kopiere den erzeugten Befehl. Teile dann hier deinen Keystore auf — füge den Befehl unten in ⓪ ein, um Operator-IDs/-Schlüssel, Owner-Adresse und Nonce automatisch auszufüllen.",
     "title": "🔐 ETH Validator + SSV Toolkit (lokal)",
     "tabGenerate": "Validator-Schlüssel erzeugen",
     "tabSplit": "SSV KeyShares aufteilen",
@@ -462,6 +469,7 @@ export const UI: Record<Lang, Dict> = {
     "topGenBtn": "Aufstockungs-deposit_data erzeugen"
   },
   "es": {
+    "splitPrereq": "<b>Antes de dividir:</b> primero en <a href=\"https://app.ssv.network\" target=\"_blank\" rel=\"noreferrer\">app.ssv.network</a>, elige tu validador y los operadores (mín. 4) que lo ejecutarán, y copia el comando que genera. Luego divide tu keystore aquí — pega ese comando en ⓪ abajo para autocompletar los IDs/claves de operadores, la dirección del owner y el nonce.",
     "title": "🔐 Kit ETH Validator + SSV (local)",
     "tabGenerate": "Generar claves de validador",
     "tabSplit": "Dividir KeyShares de SSV",
