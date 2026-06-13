@@ -6,6 +6,7 @@ import { SSVKeys, KeyShares, KeySharesItem } from '@ssv-labs/ssv-sdk';
 import { generateValidators, NETWORKS, detectNextIndex } from './generate';
 import { generateMnemonic, validateMnemonic } from '@scure/bip39';
 import { wordlist } from '@scure/bip39/wordlists/english.js';
+import { keccak_256 } from '@noble/hashes/sha3.js';
 
 const $ = (id: string) => document.getElementById(id) as any;
 const mkLog = (id: string) => (msg: string, replace = false) => {
@@ -16,6 +17,23 @@ const mkLog = (id: string) => (msg: string, replace = false) => {
 const log = mkLog('log');     // split panel
 const glog = mkLog('gLog');   // generate panel
 const tLog = mkLog('tLog');   // top-up panel
+
+// EIP-55 checksum address validation — typo guard for the (irreversible) withdrawal address.
+function checksumAddress(addr: string): string {
+  const a = addr.toLowerCase().replace(/^0x/, '');
+  const hash = keccak_256(new TextEncoder().encode(a));
+  let hex = '';
+  for (let i = 0; i < hash.length; i++) hex += hash[i].toString(16).padStart(2, '0');
+  let out = '0x';
+  for (let i = 0; i < 40; i++) out += parseInt(hex[i], 16) >= 8 ? a[i].toUpperCase() : a[i];
+  return out;
+}
+function validAddress(addr: string): boolean {
+  if (!/^0x[0-9a-fA-F]{40}$/.test(addr)) return false;
+  const body = addr.slice(2);
+  if (body === body.toLowerCase() || body === body.toUpperCase()) return true; // no checksum info → accept
+  return checksumAddress(addr) === addr; // mixed-case must satisfy EIP-55 (catches typos)
+}
 
 // ---------------- i18n ----------------
 type Lang = 'zh' | 'en';
@@ -346,7 +364,7 @@ $('gGen').addEventListener('click', async () => {
     }
     const withdraw = ($('gWithdraw').value || '').trim();
     const withdraw2 = ($('gWithdraw2').value || '').trim();
-    if (!/^0x[0-9a-fA-F]{40}$/.test(withdraw)) return glog(tx('❌ 提款地址格式不正確。', '❌ Withdrawal address format is invalid.'), true);
+    if (!validAddress(withdraw)) return glog(tx('❌ 提款地址無效(格式或 EIP-55 checksum 不符)。', '❌ Withdrawal address invalid (format or EIP-55 checksum).'), true);
     if (withdraw.toLowerCase() !== withdraw2.toLowerCase()) return glog(tx('❌ 兩次輸入的提款地址不一致。', '❌ The two withdrawal addresses do not match.'), true);
     const compounding = $('gCompounding').checked;
     const startIndex = parseInt(($('gStart').value || '').trim(), 10);
@@ -377,8 +395,8 @@ $('gGen').addEventListener('click', async () => {
     addDownload(dl, `deposit_data-${Date.now()}.json`, JSON.stringify(res.depositData));
 
     glog(tx(
-      `✅ 完成 ${count} 個 —— 每個已驗證:BLS 簽名(sign→verify)+ keystore 可解回原金鑰。點下方下載 keystore 與 deposit_data.json。`,
-      `✅ Done (${count}) — each verified: BLS signature (sign→verify) + keystore decrypts back to the key. Click below to download keystores + deposit_data.json.`));
+      `✅ [${NETWORKS[network].label}] 完成 ${count} 個 —— 每個已驗證:BLS 簽名(sign→verify)+ keystore 可解回原金鑰。點下方下載 keystore 與 deposit_data.json。`,
+      `✅ [${NETWORKS[network].label}] Done (${count}) — each verified: BLS signature (sign→verify) + keystore decrypts back to the key. Click below to download keystores + deposit_data.json.`));
 
     const lp = NETWORKS[network].launchpad;
     $('gNext').classList.remove('hidden');
@@ -400,7 +418,7 @@ $('tGen').addEventListener('click', async () => {
     const mnemonic = topupGrid.getMnemonic();
     if (!validateMnemonic(mnemonic, wordlist)) return tLog(tx('❌ 助記詞無效(檢查字數/拼字)。', '❌ Invalid mnemonic (check word count/spelling).'), true);
     const withdraw = ($('tWithdraw').value || '').trim();
-    if (!/^0x[0-9a-fA-F]{40}$/.test(withdraw)) return tLog(tx('❌ 提款地址格式不正確。', '❌ Withdrawal address format is invalid.'), true);
+    if (!validAddress(withdraw)) return tLog(tx('❌ 提款地址無效(格式或 EIP-55 checksum 不符)。', '❌ Withdrawal address invalid (format or EIP-55 checksum).'), true);
     const startIndex = parseInt(($('tIndex').value || '').trim(), 10);
     const count = parseInt(($('tCount').value || '').trim(), 10);
     const amountEth = parseFloat(($('tAmount').value || '').trim());
@@ -418,7 +436,7 @@ $('tGen').addEventListener('click', async () => {
     });
     res.depositData.forEach((d: any, i: number) => tLog(`  • index ${startIndex + i}: 0x${d.pubkey.slice(0, 14)}…  +${amountEth} ETH`));
     addDownload($('tDl'), `topup_deposit_data-${Date.now()}.json`, JSON.stringify(res.depositData));
-    tLog(tx('✅ 完成。請先核對上面 pubkey 是你要加碼的 validator,再送出。', '✅ Done. Verify the pubkey(s) above match the validator(s) you want to top up before submitting.'));
+    tLog(tx(`✅ [${NETWORKS[network].label}] 完成。請先核對上面 pubkey 是你要加碼的 validator,再送出。`, `✅ [${NETWORKS[network].label}] Done. Verify the pubkey(s) above match the validator(s) you want to top up before submitting.`));
     $('tNext').classList.remove('hidden');
     $('tNext').innerHTML = tx(
       '<b>送出方式(這是 top-up):</b> ethdo(<code>ethdo validator deposit</code>)、官方 launchpad 的 top-up,或直接對存款合約送這個 deposit_data。鏈上只認 pubkey,會把 ETH 加到既有 validator。',
@@ -485,7 +503,7 @@ $('gen').addEventListener('click', async () => {
     const fileList = $('files').files;
     if (ids.length !== opKeys.length || !opKeys.length) return log(tx('❌ IDs 與公鑰數量不符。', '❌ IDs/keys count mismatch.'), true);
     if (ids.length < 4) return log(tx('❌ 至少 4 個 operator。', '❌ At least 4 operators.'), true);
-    if (!/^0x[0-9a-fA-F]{40}$/.test(owner)) return log(tx('❌ owner 地址不正確。', '❌ Owner address invalid.'), true);
+    if (!validAddress(owner)) return log(tx('❌ owner 地址無效(格式或 checksum)。', '❌ Owner address invalid (format or checksum).'), true);
     if (Number.isNaN(baseNonce)) return log(tx('❌ nonce 不是數字。', '❌ Nonce is not a number.'), true);
     if (!fileList || !fileList.length) return log(tx('❌ 請選 keystore 檔。', '❌ Choose a keystore file.'), true);
     if (!password) return log(tx('❌ 請輸入密碼。', '❌ Enter the password.'), true);

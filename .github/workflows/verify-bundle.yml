@@ -1,0 +1,33 @@
+name: verify-bundle
+# Proves the committed docs/ bundle is byte-identical to a fresh build from the
+# locked sources, and the offline crypto self-test still passes. No deploy.
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Offline crypto self-test (fixed vectors vs deposit-cli)
+        run: pnpm test
+      - name: Rebuild and assert committed docs/ is byte-identical
+        run: |
+          pnpm build
+          if ! git diff --quiet -- docs; then
+            echo "::error::Committed docs/ does not match a fresh build from source — bundle may be tampered or stale."
+            git --no-pager diff --stat -- docs
+            exit 1
+          fi
+          echo "OK: committed docs/ == fresh build from locked sources"
+      - name: Publish bundle SHA-256
+        run: shasum -a 256 docs/assets/index-*.js

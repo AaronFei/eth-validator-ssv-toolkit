@@ -73,7 +73,12 @@ all key generation / splitting offline. UI marks the 🌐 buttons clearly.
 - Testnet: the matching launchpad subdomain (verify the current testnet first).
 - The tool just shows the correct launchpad link for the selected network.
 
-## Tech stack (audited JS — no hand-rolled crypto)
+## Tech stack (audited JS primitives; EIP-2335 keystore composed in-repo on @noble)
+
+> Note: the EIP-2335 keystore is implemented in this repo (`src/keystore.ts`) as a
+> composition of audited `@noble` primitives (scrypt/aes-128-ctr/sha256), not a
+> third-party keystore lib — it is interop-verified with deposit-cli both ways.
+
 
 `@scure/bip39` · `@chainsafe/bls-keygen` · `@chainsafe/bls` (browser:
 `bls-eth-wasm`) · `@chainsafe/bls-keystore` · `@chainsafe/ssz` +

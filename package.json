@@ -8,8 +8,11 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "start": "vite build && vite preview"
+    "start": "vite build && vite preview",
+    "test": "tsx test/selftest.ts",
+    "verify:cli": "tsx scripts/verify-vs-deposit-cli.ts"
   },
+  "packageManager": "pnpm@10.34.3",
   "dependencies": {
     "@chainsafe/bls": "^8.2.0",
     "@chainsafe/bls-keygen": "^0.4.0",
@@ -21,7 +24,7 @@
     "@ssv-labs/ssv-sdk": "0.1.0"
   },
   "devDependencies": {
-    "crypto-browserify": "^3.12.1",
+    "tsx": "^4.22.4",
     "unenv": "2.0.0-rc.24",
     "vite": "^7.0.3",
     "vite-plugin-node-polyfills": "^0.23.0"
